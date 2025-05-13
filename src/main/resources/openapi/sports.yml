@@ -1,0 +1,565 @@
+openapi: 3.0.0
+info:
+  title: Sports API
+  version: 1.0.0
+  description: API for accessing sports data from LeonBets.
+
+paths:
+  /api-2/betline/sports:
+    get:
+      summary: Get all sports
+      responses:
+        '200':
+          description: List of sports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sport'
+
+  /api-2/betline/changes/all?ctag=en-US&vtag=9c2cd386-31e1-4ce9-a140-28e9b63a9300&league_id=1970324836978008&hideClosed=true&flags=reg,urlv2,mm2,rrc,nodup:
+    get:
+      summary: Get league matches data
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeagueData'
+
+components:
+  schemas:
+    Sport:
+      type: object
+      required:
+        - id
+        - name
+        - weight
+        - family
+        - regions
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        family:
+          type: string
+        weight:
+          type: integer
+          format: int32
+        regions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Region'
+    Region:
+      type: object
+      required:
+        - id
+        - name
+        - family
+        - leagues
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        family:
+          type: string
+        leagues:
+          type: array
+          items:
+            $ref: '#/components/schemas/League'
+    League:
+      type: object
+      required:
+        - id
+        - name
+        - url
+        - weight
+        - prematch
+        - inplay
+        - outright
+        - top
+        - topOrder
+        - logoUrl
+        - background
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        url:
+          type: string
+        weight:
+          type: integer
+        prematch:
+          type: integer
+        inplay:
+          type: integer
+        outright:
+          type: integer
+        top:
+          type: boolean
+        topOrder:
+          type: integer
+        logoUrl:
+          type: string
+        background:
+          type: string
+
+    LeagueData:
+      type: object
+      properties:
+          enabled:
+            type: boolean
+            description: Whether the data is enabled
+          totalCount:
+            type: integer
+            description: Total number of matches
+          vtag:
+            type: string
+            format: uuid
+            description: Version tag
+          data:
+            type: array
+            items:
+              $ref: '#/components/schemas/Match'
+      required:
+          - enabled
+          - totalCount
+          - vtag
+          - data
+
+    Match:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique match identifier
+        _s:
+          type: string
+          description: Internal identifier
+        name:
+          type: string
+          description: Match name (home team - away team)
+        nameDefault:
+          type: string
+          description: Default match name
+        competitors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Competitor'
+        kickoff:
+          type: integer
+          format: int64
+          description: Match start timestamp in milliseconds
+        lastUpdated:
+          type: integer
+          format: int64
+          description: Last update timestamp in milliseconds
+        league:
+          $ref: '#/components/schemas/LeagueDetails'
+        betline:
+          type: string
+          description: Type of betting line
+        open:
+          type: boolean
+          description: Whether the match is open for betting
+        status:
+          type: string
+          description: Match status
+        native:
+          type: boolean
+          description: Whether this is a native match
+        widgetType:
+          type: string
+          description: Widget type
+        widgetVirtual:
+          type: boolean
+          description: Whether the widget is virtual
+        url:
+          type: string
+          description: URL slug for the match
+        matchPhase:
+          type: string
+          description: Current match phase
+        hasMarketWithZeroMargin:
+          type: boolean
+          description: Whether any markets have zero margin
+        markets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Market'
+        runnersCount:
+          type: integer
+          description: Number of runners/options available
+      required:
+        - id
+        - name
+        - nameDefault
+        - competitors
+        - kickoff
+        - lastUpdated
+        - league
+        - betline
+        - open
+        - status
+        - markets
+        - native
+        - widgetType
+        - widgetVirtual
+        - url
+        - matchPhase
+        - hasMarketWithZeroMargin
+        - runnersCount
+
+    Competitor:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique competitor identifier
+          name:
+            type: string
+            description: Team name
+          homeAway:
+            type: string
+            description: Whether the team is home or away
+          logoSource:
+            type: string
+            description: Source of the logo
+          logo:
+            type: string
+            format: uri
+            description: URL to the team logo
+        required:
+          - id
+          - name
+          - homeAway
+          - logoSource
+          - logo
+
+    LeagueDetails:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique league identifier
+          sport:
+            $ref: '#/components/schemas/SportDetails'
+          name:
+            type: string
+            description: League name
+          nameDefault:
+            type: string
+            description: Default league name
+          url:
+            type: string
+            description: URL slug for the league
+          weight:
+            type: integer
+            description: Weight/priority of the league
+          prematch:
+            type: integer
+            description: Prematch status
+          inplay:
+            type: integer
+            description: Inplay status
+          outright:
+            type: integer
+            description: Outright status
+          top:
+            type: boolean
+            description: Whether this is a top league
+          hasZeroMarginEvents:
+            type: boolean
+            description: Whether any events have zero margin
+          topOrder:
+            type: integer
+            description: Order among top leagues
+          region:
+            $ref: '#/components/schemas/RegionDetails'
+          logoSource:
+            type: string
+            description: Source of the logo
+          logoUrl:
+            type: string
+            format: uri
+            description: URL to the league logo
+        required:
+          - id
+
+    SportDetails:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique sport identifier
+          name:
+            type: string
+            description: Sport name
+          weight:
+            type: integer
+            description: Weight/priority of the sport
+          family:
+            type: string
+            description: Sport family/category
+          mainMarkets:
+            type: array
+            items:
+              $ref: '#/components/schemas/MarketType'
+          virtual:
+            type: boolean
+            description: Whether the sport is virtual
+          url:
+            type: string
+            description: URL slug for the sport
+        required:
+          - id
+          - name
+          - weight
+          - family
+          - mainMarkets
+          - virtual
+          - url
+
+    MarketType:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique market type identifier
+          name:
+            type: string
+            description: Market type name
+          weight:
+            type: integer
+            description: Weight/priority of the market type
+          altMarketTypeIds:
+            type: array
+            items:
+              type: integer
+              format: int64
+            description: Alternative market type IDs
+          virtual:
+            type: boolean
+            description: Whether the market is virtual
+        required:
+          - id
+          - name
+          - weight
+          - altMarketTypeIds
+          - virtual
+
+    RegionDetails:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique region identifier
+          name:
+            type: string
+            description: Region name
+          nameDefault:
+            type: string
+            description: Default region name
+          family:
+            type: string
+            description: Region family/category
+          url:
+            type: string
+            description: URL slug for the region
+        required:
+          - id
+          - name
+          - nameDefault
+          - family
+          - url
+
+    Market:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique market identifier
+          typeTag:
+            type: string
+            description: Type of market
+          name:
+            type: string
+            description: Market name
+          marketTypeId:
+            type: integer
+            format: int64
+            description: Reference to market type
+          open:
+            type: boolean
+            description: Whether the market is open
+          hasZeroMargin:
+            type: boolean
+            description: Whether the market has zero margin
+          primary:
+            type: boolean
+            description: Whether this is a primary market
+          cols:
+            type: integer
+            description: Number of columns in the market display
+          runners:
+            type: array
+            items:
+              $ref: '#/components/schemas/Runner'
+          specifiers:
+            type: object
+            additionalProperties:
+              type: string
+            description: Market-specific parameters
+          selectionTypes:
+            type: array
+            items:
+              type: string
+            description: Types of selections available
+          handicap:
+            type: string
+            description: Handicap value (for handicap markets)
+        required:
+          - id
+          - typeTag
+          - name
+          - marketTypeId
+          - open
+          - hasZeroMargin
+          - primary
+          - cols
+          - runners
+          - specifiers
+          - selectionTypes
+
+    Runner:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: Unique runner identifier
+          name:
+            type: string
+            description: Runner name/option
+          open:
+            type: boolean
+            description: Whether the runner is open
+          r:
+            type: integer
+            description: Row position
+          c:
+            type: integer
+            description: Column position
+          tags:
+            type: array
+            items:
+              type: string
+            description: Tags for the runner
+          price:
+            type: number
+            format: float
+            description: Odds price
+          priceStr:
+            type: string
+            description: Formatted odds price
+          handicap:
+            type: string
+            description: Handicap value (for handicap markets)
+        required:
+          - id
+          - name
+          - open
+          - r
+          - c
+          - tags
+          - price
+          - priceStr
+
+    AggregatedSportMatchesData:
+      type: object
+      required:
+        - sportsName
+        - leagues
+      properties:
+        sportsName:
+          type: string
+        leagues:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeagueDataAggregated'
+
+    LeagueDataAggregated:
+      type: object
+      required:
+        - leagueName
+        - matches
+      properties:
+        leagueName:
+          type: string
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/MatchesDataAggregated'
+
+    MatchesDataAggregated:
+      type: object
+      required:
+        - matchName
+        - kickoffDateTime
+        - matchId
+        - markets
+      properties:
+        matchName:
+          type: string
+        kickoffDateTime:
+          type: string
+        matchId:
+          type: integer
+          format: int64
+        markets:
+          type: array
+          items:
+            $ref: '#/components/schemas/MarketDetailsAggregated'
+
+    MarketDetailsAggregated:
+      type: object
+      required:
+        - name
+        - runners
+      properties:
+        name:
+          type: string
+        runners:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunnerDataAggregated'
+
+    RunnerDataAggregated:
+      type: object
+      required:
+        - name
+        - price
+        - runnerId
+      properties:
+        name:
+          type: string
+        price:
+          type: string
+        runnerId:
+          type: integer
+          format: int64
