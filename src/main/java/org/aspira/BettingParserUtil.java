@@ -36,7 +36,7 @@ public class BettingParserUtil {
 
   protected void process() {
     Collection<Sport> sports = getSelectedSports();
-    List<AggregatedSportMatchesData> aggregatedSportMatchesData = fillSportsData(sports);
+    List<AggregatedSportMatchesData> aggregatedSportMatchesData = fillSportsDataAsync(sports);
 
     aggregatedSportMatchesData.sort(
         Comparator.comparingInt(data -> SPORTS_KEYWORDS.stream()
@@ -49,7 +49,7 @@ public class BettingParserUtil {
     EXECUTOR_SERVICE.shutdown();
   }
 
-  private List<AggregatedSportMatchesData> fillSportsData(Collection<Sport> sports) {
+  private List<AggregatedSportMatchesData> fillSportsDataAsync(Collection<Sport> sports) {
     List<AggregatedSportMatchesData> aggregatedSportMatchesData = new LinkedList<>();
     List<Future<?>> allSubmittedSportsTasks = new LinkedList<>();
 
