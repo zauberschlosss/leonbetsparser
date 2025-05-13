@@ -15,10 +15,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +25,6 @@ import java.util.concurrent.Future;
 public class BettingParserUtil {
   private static final String BASE_URL = "https://leonbets.com";
   private static final String SPORTS_ENDPOINT = "/api-2/betline/sports?ctag=en-US&flags=urlv2";
-  // TODO: replace 'vtag' value with *not hardcoded* UUID
   private static final String LEAGUE_DETAILS_ENDPOINT = "/api-2/betline/changes/all?ctag=en-US&vtag=9c2cd386-31e1-4ce9-a140-28e9b63a9300&league_id={{league_id}}&hideClosed=true&flags=reg,urlv2,mm2,rrc,nodup";
 
   private static final Collection<String> SPORTS_KEYWORDS = List.of("Football", "Tennis", "Ice Hockey", "Basketball");
@@ -40,8 +36,16 @@ public class BettingParserUtil {
 
   protected void process() {
     Collection<Sport> sports = getSelectedSports();
-    Collection<AggregatedSportMatchesData> aggregatedSportMatchesData = fillSportsData(sports);
+    List<AggregatedSportMatchesData> aggregatedSportMatchesData = fillSportsData(sports);
+
+    aggregatedSportMatchesData.sort(
+        Comparator.comparingInt(data -> SPORTS_KEYWORDS.stream()
+            .toList()
+            .indexOf(data.getSportsName()))
+    );
+
     prettyPrintAggregatedData(aggregatedSportMatchesData);
+
     EXECUTOR_SERVICE.shutdown();
   }
 
@@ -86,7 +90,6 @@ public class BettingParserUtil {
     var leagueDataAggregated = new LinkedList<LeagueDataAggregated>();
 
     for (League league : leagues) {
-      // TODO: also add CompletableFuture here
       var leagueMatchesRequest = generateHttpRequest(generateLeagueDetailsUrl(league.getId()));
       LeagueData leagueData = getLeagueMatches(leagueMatchesRequest, sportName, league.getName());
       Collection<Match> leagueMatches = Collections.emptyList();
